@@ -1,8 +1,0 @@
-
-yi = [0.01, 0.01, 0.01, 0.01]
-                yi[idC] = 0.98
-				
-genTR >>
-	localDataGen
-	
-* did I sorted the lines in ltm_image_processor ??

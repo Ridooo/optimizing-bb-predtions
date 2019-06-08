@@ -1,2 +1,3 @@
 optimize_ltm/data/*
 optimize_ltm/__pycache__/*
+*.ipynb_checkpoints*

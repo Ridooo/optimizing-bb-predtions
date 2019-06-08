@@ -204,9 +204,10 @@ class DB():
         bucket_keys.append([key for key in keys if '1.jpeg' in key])
         bucket_keys.append([key for key in keys if '2.jpeg' in key])
         bucket_keys.append([key for key in keys if '3.jpeg' in key])
+        #bucket_keys.append([key for key in keys if '5.jpeg' in key])
         
-        mm = min([len(bucket) for bucket in bucket_keys])
-        bucket_keys = [ bucket[:mm] for bucket in bucket_keys ]
+        #mm = min([len(bucket) for bucket in bucket_keys])
+        #bucket_keys = [ bucket[:mm] for bucket in bucket_keys ]
         print("buckets len", [len(bucket) for bucket in bucket_keys])
         while True:
            
@@ -223,8 +224,8 @@ class DB():
             for i in range(int(batch_size)):
                 #if i==0:
                  #   bnks_bs = []
-                #bnk = np.random.randint(len(bucket_keys))
-                bnk = np.random.choice(3,size=1,p=[.5,.3,.2])[0]
+                bnk = np.random.randint(len(bucket_keys))
+                #bnk = np.random.choice(3,size=1,p=[.5,.3,.2])[0]
                 idx = np.random.randint(len(bucket_keys[bnk]))
                 #bnks_bs.append(bnk)
                 #if len(bnks_bs) == int(batch_size):
@@ -235,7 +236,6 @@ class DB():
                 #print("bnk",bnk)
                 image = cv2.imread(db[bucket_keys[bnk][idx]][3],0)
                 #image = cv2.imread(db[keys[idx]][3],0)
-                print("image.shapeimage.shape",image.shape)
                 
                 org_shape = image.shape
                 

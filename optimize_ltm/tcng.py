@@ -133,7 +133,7 @@ class TCNNG(object):
             heights_ph =Input(tensor=self.heights_ph)
             widths_ph =Input(tensor=self.widths_ph)
             
-            predicted_images = Lambda(images_generator_func, output_shape=(self.h,self.w,self.c,),arguments={"batch_size":int(self.batch_size),"normalize_lines":False}, name='images_generator_func')([images_ph, heights_ph, widths_ph, l_true_ph])
+            predicted_images = Lambda(images_generator_func, output_shape=(self.h,self.w,self.c,),arguments={"batch_size":int(self.batch_size),"normalize_lines":True}, name='images_generator_func')([images_ph, heights_ph, widths_ph, l_true_ph])
             self.predicted_images = predicted_images
             #predicted_images, _  =predicted_images_generator(images_ph,heights_ph, widths_ph,l_pred, int(self.batch_size/2),nlines=False)
             
@@ -241,7 +241,10 @@ def predicted_images_generator(images_ph,heights_ph, widths_ph,l_pred, batch_siz
         image = tf.slice(images_ph, [i,0,0,0], [1,heights_ph[i][0], widths_ph[i][0], c])
         
         if normalize_lines:
-            l = tf.div(l_pred[i],tf.cast(heights_ph[i][0], dtype=tf.float32))
+            l = l_pred[i]
+            #l = tf.Print(l,[l], message='l before')
+            l = tf.div(l,tf.cast(heights_ph[i][0], dtype=tf.float32))
+            #l = tf.Print(l,[l], message='l after')
         else:
             l = l_pred[i]
             

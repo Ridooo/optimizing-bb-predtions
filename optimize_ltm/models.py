@@ -63,7 +63,7 @@ def ltm_predictor(ltm_images_ph, reuse=False):
     p_b6 = tf.get_variable('p_b6', [500], initializer=tf.truncated_normal_initializer(stddev=0.02))
     p6 = tf.matmul(p5, p_w6) + p_b6
     #p6 = tf.contrib.layers.batch_norm(p6, epsilon=1e-5, scope='bn6')
-    p6 = tf.nn.sigmoid(p6)
+    p6 = tf.nn.relu(p6, name='relu1')
     _,w6 = p6.shape
     
     p6 = tf.nn.dropout(p6, 0.2)
@@ -72,7 +72,7 @@ def ltm_predictor(ltm_images_ph, reuse=False):
     p_b7 = tf.get_variable('p_b7', [500], initializer=tf.truncated_normal_initializer(stddev=0.02))
     p7 = tf.matmul(p6, p_w7) + p_b7
     #p6 = tf.contrib.layers.batch_norm(p6, epsilon=1e-5, scope='bn6')
-    p7 = tf.nn.sigmoid(p7)
+    p7 = tf.nn.relu(p7, name='relu2')
     _,w7 = p7.shape
     
     
@@ -80,7 +80,7 @@ def ltm_predictor(ltm_images_ph, reuse=False):
     p_b8 = tf.get_variable('p_b8', [3], initializer=tf.truncated_normal_initializer(stddev=0.02))
     p8 = tf.matmul(p7, p_w8) + p_b8
     #p6 = tf.contrib.layers.batch_norm(p6, epsilon=1e-5, scope='bn6')
-    p8 = tf.nn.sigmoid(p8, name='Sigmoid_2')
+    p8 = tf.nn.relu(p8, name='relu3')
     
     return p8
 
