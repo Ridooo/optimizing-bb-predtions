@@ -80,5 +80,5 @@ RUN pip3 install --timeout=60 -r requirements.txt
 
 RUN pip3 install bokeh
 
-WORKDIR "/tensorify"
+WORKDIR "/seliveri"
 CMD ["/bin/bash"]
