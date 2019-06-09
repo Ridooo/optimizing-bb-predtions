@@ -1,4 +1,5 @@
 import os
+print("os.path",os.path)
 print("output of ls command: ", os.system("ls -ltr /"))
 print("output of ls command: ", os.system("ls -ltr /valohai/repository"))
 print("output of ls command: ", os.system("ls -ltr /valohai/inputs"))
