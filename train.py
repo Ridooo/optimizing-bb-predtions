@@ -1,19 +1,16 @@
 import os
-print("os.path",os.path)
-print("output of ls command: ", os.system("ls -ltr /"))
-print("output of ls command: ", os.system("ls -ltr /valohai/repository"))
-print("output of ls command: ", os.system("ls -ltr /valohai/inputs"))
 import tensorflow as tf
 from keras import backend as bknd
 import numpy as np
 import datetime
 import  matplotlib.pylab as plt
-from remotedb import DB
-from image_processor import    ltm_img_processor ,     real_images_processor
-from models import ltm_predictor, discriminator
-from tcng import predicted_images_generator, TCNNG
-from EvaluateTCN import compare
+from optimize_ltm.remotedb import DB
+from optimize_ltm.image_processor import    ltm_img_processor ,     real_images_processor
+from optimize_ltm.models import ltm_predictor, discriminator
+from optimize_ltm.tcng import predicted_images_generator, TCNNG
+from optimize_ltm.EvaluateTCN import compare
 import logging
+
 import argparse
 
 def get_args():
