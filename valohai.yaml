@@ -4,3 +4,6 @@
     name: model-training
     image: ridooo/seliveri:optimize_ltm
     command: python3.5 train.py
+    inputs:
+      - name: training-set
+        default: https://drive.google.com/uc?export=download&confirm=GHgT&id=1l6sQMu4lOTGxHKqBhY9mXpI4Pd-Z6E_N

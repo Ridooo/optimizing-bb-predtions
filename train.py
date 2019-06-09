@@ -50,5 +50,5 @@ if __name__=='__main__':
     INPUTS_DIR = os.getenv('VH_INPUTS_DIR', './inputs')
     print("INPUTS_DIR: ",INPUTS_DIR)
     print("pars: ", pars)
-
+    #db = DB(db_pars)
 
