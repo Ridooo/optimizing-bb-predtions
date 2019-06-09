@@ -1,6 +1,8 @@
 import os
-print("output of ls command: ", os.system("ls -ltr /"))
-#import tensorflow as tf
+print("output of ls command: ", os.system("ls -ltr /valohai/"))
+print("output of ls command: ", os.system("ls -ltr /valohai/repository"))
+print("output of ls command: ", os.system("ls -ltr /valohai/inputs"))
+import tensorflow as tf
 from keras import backend as bknd
 import numpy as np
 import datetime
