@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from datetime import datetime
 #from clean.utils import ImagePreprocess
 from keras import backend as bknd
-from EvaluateTCN import levenshtein ,compare, compare1
+from optimize_ltm.EvaluateTCN import levenshtein ,compare, compare1
 
 import sys
 import os
