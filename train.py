@@ -1,3 +1,5 @@
+import os
+print("output of ls command: ", os.system("ls -ltr /"))
 import tensorflow as tf
 from keras import backend as bknd
 import numpy as np
