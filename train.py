@@ -15,7 +15,7 @@ import argparse
 
 def get_args():
 
-    parser = argparse.ArgumentParser(description='Test a network')
+    parser = argparse.ArgumentParser(description='params')
     parser.add_argument('--maxL', dest='maxL',
         help='max label length', default=70, type=int)
     parser.add_argument('--p', dest='p',
@@ -26,8 +26,6 @@ def get_args():
         help='original image is padded to this width', default=1600, type=int)
     parser.add_argument('--cl', dest='cl',
         help='original image number of channels', default=1, type=int)
-    parser.add_argument('--maxL', dest='maxL',
-        help='max label length', default=70, type=int)
     parser.add_argument('--hwprlabel', dest='hwprlabel',
         help='hwprlabel', default='lower', type=str)
     parser.add_argument('--workspace_dir', dest='workspace_dir',
