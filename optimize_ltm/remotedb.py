@@ -23,7 +23,7 @@ import numpy as np
 from random import shuffle
 import logging
 
-from image_processor import ltm_img_processor
+from optimize_ltm.image_processor import ltm_img_processor
 
 
 

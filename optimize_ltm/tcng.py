@@ -25,9 +25,9 @@ import datetime
 from random import shuffle
 from sklearn.metrics import accuracy_score, confusion_matrix
 from datetime import datetime
-from tcnn import TCN
-from EvaluateTCN import Evaluate
-from modelsUtils import translate_image
+from optimize_ltm.tcnn import TCN
+from optimize_ltm.EvaluateTCN import Evaluate
+from optimize_ltm.modelsUtils import translate_image
 
 
     
