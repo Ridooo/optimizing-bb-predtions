@@ -3,4 +3,4 @@
 - step:
     name: model-training
     image: ridooo/seliveri:optimize_ltm
-    command: python train.py
+    command: python3.5 train.py
