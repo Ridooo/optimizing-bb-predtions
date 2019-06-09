@@ -1,5 +1,5 @@
 import os
-print("output of ls command: ", os.system("ls -ltr /valohai/"))
+print("output of ls command: ", os.system("ls -ltr /"))
 print("output of ls command: ", os.system("ls -ltr /valohai/repository"))
 print("output of ls command: ", os.system("ls -ltr /valohai/inputs"))
 import tensorflow as tf
