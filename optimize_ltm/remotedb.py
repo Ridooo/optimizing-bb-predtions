@@ -93,7 +93,7 @@ class DB():
         db = {}
         
         name = self.pars['training_set_dir'] +'/*/Approved' + '/AAnnotationFileEUS.csv'        
-        imgs = [i.split('/')[-1] for i in glob.glob(self.pars['training_set_dir'] +'/*/Approved' +  + '/EnglishUnstructured' + '/*jpeg')]
+        imgs = [i.split('/')[-1] for i in glob.glob(self.pars['training_set_dir'] +'/*/Approved'  + '/EnglishUnstructured' + '/*jpeg')]
         
         with open(name, 'r') as (f):
             for row in csv.reader(f, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
