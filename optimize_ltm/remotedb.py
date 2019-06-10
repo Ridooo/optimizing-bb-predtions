@@ -55,7 +55,6 @@ class DB():
         self.maxL=pars["maxL"]
         self.hwprlabel=pars["hwprlabel"]
         
-        self.dataset=pars["dataset"]
         self.p=pars["p"]
         self.hl=pars["hl"]
         self.wl=pars["wl"]

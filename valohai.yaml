@@ -4,6 +4,9 @@
     name: model-training
     image: ridooo/seliveri:optimize_ltm
     command: python3.5 train.py
+    environment: AWS eu-west-1 g3s.xlarge
     inputs:
       - name: training-set
         default: datum://016b3e3e-238c-1b0a-7b39-9fdce2aead61
+      - name: input-models
+        default: datum://016b423b-3618-a53e-665d-d4429d323984
