@@ -48,7 +48,7 @@ def get_model_args():
         help='learning rate', default='0.001', type=float)
     parser.add_argument('--lr_decay', dest='lr_decay',
         help='learning decay', default='0.9', type=float)
-    parser.add_argument('--optimization', dest='optimization',
+    parser.add_argument('--op', dest='op',
         help='training optimization', default='adam', type=str)
     parser.add_argument('--debug', dest='debug',
         help='enable debug', default=0, type=int)
@@ -91,7 +91,7 @@ if __name__=='__main__':
     print("db_pars: ", db_pars)
     print("model_pars: ", model_pars)
     print("os.path.isfile(os.path.join(INPUT_MODELS_DIR,model_pars['load']))",os.path.isfile(os.path.join(INPUT_MODELS_DIR,model_pars['load'])))
-    
+    print(os.system("ls -ltr "+ INPUT_MODELS_DIR))
     db = DB(db_pars)
 
 
