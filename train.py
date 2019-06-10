@@ -87,7 +87,7 @@ if __name__=='__main__':
     model_pars['pathSaveModel'] = OUT_MODELS_DIR
     model_pars['tb_log_dir'] = OUT_MODELS_DIR
 
-
+    os.mkdir(LOGS_DIR)
    
     print("db_pars: ", db_pars)
     print("model_pars: ", model_pars)
@@ -183,6 +183,7 @@ if __name__=='__main__':
                                     tcng_tr.label_length:seq_lens})
 
             if i % 10 == 0:
+                print("step: ", str(i))
                 # Update TensorBoard with summary statistics
                 (images, heights, widths, lines,labels,seq_lens), _ = next(train_gen)
                 ltm_images, l_true = ltm_img_processor(images, heights, widths,lines,double=False)
