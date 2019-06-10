@@ -88,6 +88,7 @@ if __name__=='__main__':
     model_pars['tb_log_dir'] = OUT_MODELS_DIR
 
     os.mkdir(LOGS_DIR)
+    os.mkdir(OUT_MODELS_DIR)
    
     print("db_pars: ", db_pars)
     print("model_pars: ", model_pars)
@@ -151,7 +152,7 @@ if __name__=='__main__':
         tcng_tr.model.load_weights(os.path.join(INPUT_MODELS_DIR, model_pars["load"]))
         newler = 999999999999.99
         # Train ltm_predictor and discriminator together
-        for i in range(1000):
+        for i in range(40):
             #images, lines , ids = next(train_gen)
             #images = np.array(images)
             #ltm_images, l_true = ltm_img_processor(images,lines)
@@ -212,7 +213,9 @@ if __name__=='__main__':
                                                     tcng_tr.label_length:seq_lens})
                 writer.add_summary(summary, i)
             
-            
+        saver = tf.train.Saver(var_list=p_vars)
+        saver.save(sess, OUT_MODELS_DIR + "/ltm_predictor_only", global_step=50, write_meta_graph=True)
+        print("done")
             
                     
                     
