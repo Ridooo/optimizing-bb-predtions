@@ -82,10 +82,10 @@ class DB():
         #unzip  the file on temp and then move the contents to workspace
     
         #unzip('./data/Approved_1_2_3_labled_v3.zip')
-        zip_ref = zipfile.ZipFile(get_first_file(self.db_pars['training_set_dir']))
-        zip_ref.extractall(self.db_pars['training_set_dir'])
-        print("'ls -ltr '+self.db_pars['training_set_dir']", os.system('ls -ltr '+self.db_pars['training_set_dir']))
-        print("'ls -ltr '+self.db_pars['training_set_dir'] +'/*/'", os.system('ls -ltr '+self.db_pars['training_set_dir']+'/*/'))
+        zip_ref = zipfile.ZipFile(get_first_file(self.pars['training_set_dir']))
+        zip_ref.extractall(self.pars['training_set_dir'])
+        print("'ls -ltr '+self.db_pars['training_set_dir']", os.system('ls -ltr '+self.pars['training_set_dir']))
+        print("'ls -ltr '+self.db_pars['training_set_dir'] +'/*/'", os.system('ls -ltr '+self.pars['training_set_dir']+'/*/'))
         zip_ref.close()
 
 
