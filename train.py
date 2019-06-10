@@ -196,6 +196,7 @@ if __name__=='__main__':
                                                     tcng_tr.widths_ph:widths,
                                                     tcng_tr.labels:labels,
                                                     tcng_tr.label_length:seq_lens})
+                print("summary",summary)
                 writer.add_summary(summary, i)
 
 
