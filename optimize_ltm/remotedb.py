@@ -84,8 +84,6 @@ class DB():
         #unzip('./data/Approved_1_2_3_labled_v3.zip')
         zip_ref = zipfile.ZipFile(get_first_file(self.pars['training_set_dir']))
         zip_ref.extractall(self.pars['training_set_dir'])
-        print("'ls -ltr '+self.db_pars['training_set_dir']", os.system('ls -ltr '+self.pars['training_set_dir']))
-        print("'ls -ltr '+self.db_pars['training_set_dir'] +'/*/'", os.system('ls -ltr '+self.pars['training_set_dir']+'/*/'))
         zip_ref.close()
 
 
@@ -93,7 +91,6 @@ class DB():
         db = {}
         
         APPROVED_DIR = glob.glob(self.pars['training_set_dir'] +'/*/Approved')[0]
-        print("APPROVED_DIR",APPROVED_DIR)
         name = APPROVED_DIR + '/AAnnotationFileEUS.csv'        
         imgs = [i.split('/')[-1] for i in glob.glob(APPROVED_DIR  + '/EnglishUnstructured' + '/*jpeg')]
         
@@ -101,7 +98,7 @@ class DB():
             for row in csv.reader(f, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
                 if row[0] in imgs:
                     db[row[0]] = row[1:] + [APPROVED_DIR  + '/EnglishUnstructured/' + row[0]]
-                    print(db[row[0]])
+                    #print(db[row[0]])
         
         keys = list(db.keys())
         shuffle(keys)
