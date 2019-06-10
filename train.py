@@ -81,6 +81,7 @@ if __name__=='__main__':
     INPUT_MODELS_DIR = os.path.join(INPUTS_DIR,'input-models')
     OUT_MODELS_DIR = os.path.join(OUTPUTS_DIR,'output-models')
     TENSORBOARD_DIR = os.path.join(OUTPUTS_DIR,'tensorboard')
+    LOGS_DIR = os.path.join(OUTPUTS_DIR,'logs')
     
     db_pars['training_set_dir'] = TRAINING_DATASET_DIR
     model_pars['pathSaveModel'] = OUT_MODELS_DIR
@@ -90,16 +91,134 @@ if __name__=='__main__':
    
     print("db_pars: ", db_pars)
     print("model_pars: ", model_pars)
-    print("os.path.isfile(os.path.join(INPUT_MODELS_DIR,model_pars['load']))",os.path.isfile(os.path.join(INPUT_MODELS_DIR,model_pars['load'])))
-    print("os.path.isfile(os.path.join(INPUT_MODELS_DIR,model_pars['load']))",os.path.join(INPUT_MODELS_DIR,model_pars['load']))
-    print(os.system("ls -ltr "+ INPUT_MODELS_DIR))
     db = DB(db_pars)
 
 
     tf.reset_default_graph()
     tcng_tr = TCNNG(mydb=db, pars=model_pars,name='optimize_ltm')
 
-    #ltm_images_ph_tr = tf.placeholder(tf.float32,[None, 124,124,1])
-    #l_true_ph_tr = tf.placeholder(tf.float32,[None, 3])
-    #l_pred_tr = ltm_predictor(ltm_images_ph_tr)          
-    #tcng_tr.architechture(framework='tensorflow',l_pred=l_pred_tr)
+    
+    ltm_images_ph_tr = tf.placeholder(tf.float32,[None, 124,124,1])
+    l_true_ph_tr = tf.placeholder(tf.float32,[None, 3])
+    l_pred_tr = ltm_predictor(ltm_images_ph_tr)          
+    tcng_tr.architechture(framework='tensorflow',l_pred=l_pred_tr)
+
+
+
+    trainable_collection = tf.get_collection_ref(tf.GraphKeys.TRAINABLE_VARIABLES)
+    var_in_training = [var for var in trainable_collection if 'testing' not in var.name]
+
+    p_mse_loss = tf.reduce_mean(tf.losses.mean_squared_error(labels=l_true_ph_tr, predictions=l_pred_tr,weights=1.0), name='p_mse_loss')
+    ctc_loss = tf.reduce_mean(tf.multiply(tf.constant(0.00002),tcng_tr.loss_out), name='ctc_loss')
+    p_total_loss = tf.add( p_mse_loss,ctc_loss, name='p_total_loss')
+    p_mse_metric = tf.reduce_mean(tf.metrics.mean_squared_error(labels=l_true_ph_tr, predictions=l_pred_tr,weights=1.0),name='p_mse_metric')
+
+    tvars = tf.trainable_variables()
+    p_vars = [var for var in tvars if 'p_' in var.name and 'testing' not in var.name]
+    p_total_trainer = tf.train.AdamOptimizer(0.0001).minimize(p_mse_loss,var_list=p_vars)
+
+
+    tf.summary.scalar('predictor_mse_loss_train',p_mse_loss)
+    #tf.summary.scalar('ctc_loss_train',ctc_loss)
+    #tf.summary.scalar('predictor_total_loss_train',p_total_loss)
+    tf.summary.image('predicted_images_generator',tcng_tr.predicted_images,5)
+
+
+    merged = tf.summary.merge_all()
+
+    p_mse_loss_valid_summary = tf.summary.scalar('predictor_mse_loss_valid',p_mse_loss)
+    #p_ctc_loss_valid_summary = tf.summary.scalar('ctc_loss_valid',ctc_loss)
+    #p_total_loss_valid_summary = tf.summary.scalar('predictor_total_loss_valid',p_total_loss)
+    p_mse_metric_valid_summary = tf.summary.scalar('predictor_mse_metric_valid',p_mse_metric)
+    merged_valid = tf.summary.merge([p_mse_loss_valid_summary,p_mse_metric_valid_summary])#p_mse_loss_valid_summary,p_ctc_loss_valid_summary,
+                                    #p_total_loss_valid_summary,
+
+
+    logdir = TENSORBOARD_DIR + '/' + datetime.datetime.now().strftime('%Y%m%d-%H%M%S') + '/'
+    ############################
+    train_gen = db.main_generator(tr=True, batch_size=model_pars['batch_size'])
+    valid_gen = db.main_generator(tr=False, batch_size=model_pars['batch_size'])
+    
+
+    logging.basicConfig(filename=LOGS_DIR + '/evaluate.out',level=logging.DEBUG ,format='%(asctime)s %(levelname)s %(message)s')
+
+    
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        sess.run(tf.local_variables_initializer())
+        writer =tf.summary.FileWriter(logdir,sess.graph)
+
+        tcng_tr.model.load_weights(os.path.join(INPUT_MODELS_DIR, model_pars["load"]))
+        newler = 999999999999.99
+        # Train ltm_predictor and discriminator together
+        for i in range(1000):
+            #images, lines , ids = next(train_gen)
+            #images = np.array(images)
+            #ltm_images, l_true = ltm_img_processor(images,lines)
+            #real_images =  real_images_processor(images, lines)
+
+
+            # Train discriminator on both real and fake images
+            ##_, __, dLossReal, dLossFake = sess.run([d_trainer_real, d_trainer_fake, d_loss_real, d_loss_fake],
+            ##                                       {real_images_ph:real_images ,images_ph:images, ltm_images_ph:ltm_images })
+
+
+            # Train ltm_predictor
+
+            #images, heights, widths, lines , ids = next(train_gen)
+            (images, heights, widths, lines,labels,seq_lens), _ = next(train_gen)
+            ltm_images, l_true = ltm_img_processor(images, heights, widths,lines,double=False)
+            
+            #images = np.array(images)
+            #ltm_images, l_true = ltm_img_processor(images, heights, widths, lines)
+            #_ = sess.run(p_total_trainer, feed_dict={images_ph:images, ltm_images_ph:ltm_images, l_true_ph:l_true })
+            
+            _ = sess.run(p_total_trainer,
+                        feed_dict={ltm_images_ph_tr:ltm_images,
+                                    l_true_ph_tr:l_true,                                                                               
+                                    tcng_tr.images_ph:images,
+                                    tcng_tr.heights_ph:heights,
+                                    tcng_tr.widths_ph:widths,
+                                    tcng_tr.labels:labels,
+                                    tcng_tr.label_length:seq_lens})
+
+            if i % 10 == 0:
+                # Update TensorBoard with summary statistics
+                (images, heights, widths, lines,labels,seq_lens), _ = next(train_gen)
+                ltm_images, l_true = ltm_img_processor(images, heights, widths,lines,double=False)
+
+                summary = sess.run(merged, feed_dict={ltm_images_ph_tr:ltm_images,
+                                                    l_true_ph_tr:l_true,                                                                               
+                                                    tcng_tr.images_ph:images,
+                                                    tcng_tr.heights_ph: heights,
+                                                    tcng_tr.widths_ph:widths,
+                                                    tcng_tr.labels:labels,
+                                                    tcng_tr.label_length:seq_lens})
+                writer.add_summary(summary, i)
+
+
+
+                (images, heights, widths, lines,labels,seq_lens), _ = next(valid_gen)
+                ltm_images, l_true = ltm_img_processor(images, heights, widths,lines,double=False)
+
+
+                summary = sess.run(merged_valid, feed_dict={ltm_images_ph_tr:ltm_images,
+                                                    l_true_ph_tr:l_true,                                                                               
+                                                    tcng_tr.images_ph:images,
+                                                    tcng_tr.heights_ph: heights,
+                                                    tcng_tr.widths_ph:widths,
+                                                    tcng_tr.labels:labels,
+                                                    tcng_tr.label_length:seq_lens})
+                writer.add_summary(summary, i)
+            
+            
+            
+                    
+                    
+                
+                
+                
+
+                
+            
+        
