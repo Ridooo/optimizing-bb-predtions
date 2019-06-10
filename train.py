@@ -91,6 +91,7 @@ if __name__=='__main__':
     print("db_pars: ", db_pars)
     print("model_pars: ", model_pars)
     print("os.path.isfile(os.path.join(INPUT_MODELS_DIR,model_pars['load']))",os.path.isfile(os.path.join(INPUT_MODELS_DIR,model_pars['load'])))
+    print("os.path.isfile(os.path.join(INPUT_MODELS_DIR,model_pars['load']))",os.path.join(INPUT_MODELS_DIR,model_pars['load']))
     print(os.system("ls -ltr "+ INPUT_MODELS_DIR))
     db = DB(db_pars)
 
