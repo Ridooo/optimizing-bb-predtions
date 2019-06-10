@@ -67,7 +67,7 @@ class DB():
             self.vocL +=1
 
         self.download_dataset()
-        #self.load_dataset()
+        self.load_dataset()
         
         
     def download_dataset(self):
@@ -92,13 +92,13 @@ class DB():
     def load_dataset(self):
         db = {}
         
-        name = self.dataset + '/AAnnotationFileEUS.csv'        
-        imgs = [i.split('/')[-1] for i in glob.glob(self.dataset + '/EnglishUnstructured/' + '*jpeg')]
+        name = self.pars['training_set_dir'] +'/*/Approved' + '/AAnnotationFileEUS.csv'        
+        imgs = [i.split('/')[-1] for i in glob.glob(self.pars['training_set_dir'] +'/*/Approved' +  + '/EnglishUnstructured' + '/*jpeg')]
         
         with open(name, 'r') as (f):
             for row in csv.reader(f, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
                 if row[0] in imgs:
-                    db[row[0]] = row[1:] + [self.dataset + '/EnglishUnstructured/' + row[0]]
+                    db[row[0]] = row[1:] + [self.pars['training_set_dir'] +'/*/Approved' +  + '/EnglishUnstructured/' + row[0]]
                     #print(db[row[0]])
         
         keys = list(db.keys())
