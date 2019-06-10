@@ -101,7 +101,7 @@ class DB():
             for row in csv.reader(f, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
                 if row[0] in imgs:
                     db[row[0]] = row[1:] + [APPROVED_DIR  + '/EnglishUnstructured/' + row[0]]
-                    #print(db[row[0]])
+                    print(db[row[0]])
         
         keys = list(db.keys())
         shuffle(keys)
