@@ -13,7 +13,7 @@ import logging
 
 import argparse
 
-def get_args():
+def get_db_args():
 
     parser = argparse.ArgumentParser(description='params')
     parser.add_argument('--maxL', dest='maxL',
@@ -28,12 +28,8 @@ def get_args():
         help='original image number of channels', default=1, type=int)
     parser.add_argument('--hwprlabel', dest='hwprlabel',
         help='hwprlabel', default='lower', type=str)
-    parser.add_argument('--workspace_dir', dest='workspace_dir',
-        help='workspace_dir', default='./data/workspace/', type=str)
-    parser.add_argument('--google_file_id', dest='google_file_id',
-        help='google_file_id', default='1l6sQMu4lOTGxHKqBhY9mXpI4Pd-Z6E_N', type=str)    
-    parser.add_argument('--google_file', dest='google_file',
-        help='google_file', default='data/Approved_1_2_3_labled_v3.zip', type=str)
+    parser.add_argument('--training_set_dir', dest='training_set_dir',
+        help='training_set_dir', default='/valohai/inputs/training-set', type=str)
     parser.add_argument('--dataset', dest='dataset',
         help='dataset', default='data/Approved_1_2_3_labled_v3/Approved', type=str)
     parser.add_argument('--pathSaveModel', dest='pathSaveModel',
@@ -44,11 +40,15 @@ def get_args():
 
     
 if __name__=='__main__':
-    args = get_args()
-    pars =vars(args)
+    args = get_db_args()
+    db_pars =vars(args)
 
     INPUTS_DIR = os.getenv('VH_INPUTS_DIR', './inputs')
-    print("INPUTS_DIR: ",INPUTS_DIR)
-    print("pars: ", pars)
-    #db = DB(db_pars)
+    TRAINING_DATASET_DIR = os.path.join(INPUTS_DIR,'training-set')
+    db_pars['training_set_dir'] = TRAINING_DATASET_DIR
+
+
+   
+    print("db_pars: ", db_pars)
+    db = DB(db_pars)
 

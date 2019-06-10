@@ -4,14 +4,13 @@ import numpy as np
 import csv, json
 import datetime
 import base64, cv2, time
-#from utils.deeplineUtils import CorpPool
 from random import shuffle
 from sklearn.metrics import accuracy_score, confusion_matrix
 from datetime import datetime
-#from clean.utils import ImagePreprocess
+
 from keras import backend as bknd
 from optimize_ltm.EvaluateTCN import levenshtein ,compare, compare1
-
+from optimize_ltm.utils import get_first_file
 import sys
 import os
 import zipfile
@@ -52,12 +51,10 @@ def sentModel(file, filename, server):
 class DB():
     def __init__(self,pars):
         
-        
+        self.pars=pars
         self.maxL=pars["maxL"]
         self.hwprlabel=pars["hwprlabel"]
-        self.workspace_dir=pars["workspace_dir"]
-        self.google_file_id=pars["google_file_id"]
-        self.google_file=pars["google_file"]
+        
         self.dataset=pars["dataset"]
         self.p=pars["p"]
         self.hl=pars["hl"]
@@ -70,7 +67,7 @@ class DB():
             self.vocL +=1
 
         self.download_dataset()
-        self.load_dataset()
+        #self.load_dataset()
         
         
     def download_dataset(self):
@@ -79,14 +76,16 @@ class DB():
         #maybeCreateWorkspace(path=workspace_dir)
     
         #download the zip file from googledrive
-        if not os.path.isfile(self.google_file):
-            gdd.download_file_from_google_drive(file_id=self.google_file_id, dest_path=self.google_file, unzip=True)
+        #if not os.path.isfile(self.google_file):
+         #   gdd.download_file_from_google_drive(file_id=self.google_file_id, dest_path=self.google_file, unzip=True)
     
         #unzip  the file on temp and then move the contents to workspace
     
         #unzip('./data/Approved_1_2_3_labled_v3.zip')
-        zip_ref = zipfile.ZipFile(self.google_file)
-        zip_ref.extractall('./data/')
+        zip_ref = zipfile.ZipFile(get_first_file(self.db_pars['training_set_dir']))
+        zip_ref.extractall(self.db_pars['training_set_dir'])
+        print("'ls -ltr '+self.db_pars['training_set_dir']", os.system('ls -ltr '+self.db_pars['training_set_dir']))
+        print("'ls -ltr '+self.db_pars['training_set_dir'] +'/*/'", os.system('ls -ltr '+self.db_pars['training_set_dir']+'/*/'))
         zip_ref.close()
 
 
