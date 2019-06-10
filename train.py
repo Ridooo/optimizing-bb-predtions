@@ -174,7 +174,7 @@ if __name__=='__main__':
             #ltm_images, l_true = ltm_img_processor(images, heights, widths, lines)
             #_ = sess.run(p_total_trainer, feed_dict={images_ph:images, ltm_images_ph:ltm_images, l_true_ph:l_true })
             
-            _ = sess.run(p_total_trainer,
+            _, mse_loss, mse_metric = sess.run([p_total_trainer,p_mse_loss,p_mse_metric],
                         feed_dict={ltm_images_ph_tr:ltm_images,
                                     l_true_ph_tr:l_true,                                                                               
                                     tcng_tr.images_ph:images,
@@ -182,6 +182,10 @@ if __name__=='__main__':
                                     tcng_tr.widths_ph:widths,
                                     tcng_tr.labels:labels,
                                     tcng_tr.label_length:seq_lens})
+            if i%10 ==0:
+                
+                print(json.dumps({"step": i, "mse_loss": mse_loss}))
+                print(json.dumps({"step": i, "mse_metric": mse_metric}))
 
             if i % 10 == 0:
                 print("step: ", str(i))
@@ -196,7 +200,7 @@ if __name__=='__main__':
                                                     tcng_tr.widths_ph:widths,
                                                     tcng_tr.labels:labels,
                                                     tcng_tr.label_length:seq_lens})
-                print("summary",summary)
+                
                 writer.add_summary(summary, i)
 
 
