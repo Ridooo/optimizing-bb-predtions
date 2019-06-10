@@ -10,7 +10,7 @@ from optimize_ltm.models import ltm_predictor, discriminator
 from optimize_ltm.tcng import predicted_images_generator, TCNNG
 from optimize_ltm.EvaluateTCN import compare
 import logging
-
+import json
 import argparse
 
 def get_db_args():
