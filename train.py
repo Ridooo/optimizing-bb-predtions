@@ -55,7 +55,7 @@ def get_model_args():
     parser.add_argument('--pathSaveModel', dest='pathSaveModel',
                 help='path to save the models', default='/valohai/outputs/output-models/', type=str)
     parser.add_argument('--load', dest='load',
-                help='model to be loaded', default='optimize_ltm_2019-04-16_05:49:00_0049-0.1954.hdf5', type=str)
+                help='model to be loaded', default='optimize_ltm_2019-04-16_05%3A49%3A00_0049-0.1954.hdf5', type=str)
     parser.add_argument('--stepepoch', dest='stepepoch',
                 help='steps per epoch', default=1000, type=int)
     parser.add_argument('--epochs', dest='epochs',
