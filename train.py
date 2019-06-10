@@ -184,8 +184,8 @@ if __name__=='__main__':
                                     tcng_tr.label_length:seq_lens})
             if i%10 ==0:
                 
-                print(json.dumps({"step": i, "mse_loss": mse_loss}))
-                print(json.dumps({"step": i, "mse_metric": mse_metric}))
+                print(json.dumps({"step": i, "mse_loss": str(mse_loss})))
+                print(json.dumps({"step": i, "mse_metric": str(mse_metric})))
 
             if i % 10 == 0:
                 print("step: ", str(i))
