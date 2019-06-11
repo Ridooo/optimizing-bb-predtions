@@ -169,7 +169,7 @@ class DB():
         else:
             db = self.valid_db
             
-        h =pars['hl']
+        h = self.pars['hl']
         w = self.pars['wl']
         
         keys = list(db.keys())
