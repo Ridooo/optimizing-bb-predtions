@@ -64,7 +64,7 @@ def get_args():
 
     
 if __name__=='__main__':
-    args = get_db_args()
+    args = get_args()
     pars =vars(args)
     
     INPUTS_DIR = os.getenv('VH_INPUTS_DIR', './inputs')
