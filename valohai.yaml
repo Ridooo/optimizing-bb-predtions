@@ -3,10 +3,26 @@
 - step:
     name: model-training
     image: ridooo/seliveri:optimize_ltm
-    command: python3.5 train.py
+    command: python3.5 train.py {parameters}
     environment: aws-eu-west-1-t2-xlarge
     inputs:
       - name: training-set
         default: datum://016b3e3e-238c-1b0a-7b39-9fdce2aead61
       - name: input-models
         default: datum://016b423b-3618-a53e-665d-d4429d323984
+    parameters:
+      - name: max_steps
+        pass-as: --max_steps={v}
+        description: Number of steps to run the trainer
+        type: integer
+        default: 50
+      - name: learning_rate
+        pass-as: --learning_rate={v}
+        description: Initial learning rate
+        type: float
+        default: 0.001
+      - name: dropout
+        pass-as: --dropout={v}
+        description: probability for training dropout
+        type: float
+        default: 0.15

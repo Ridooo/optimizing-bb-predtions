@@ -52,17 +52,10 @@ class DB():
     def __init__(self,pars):
         
         self.pars=pars
-        self.maxL=pars["maxL"]
-        self.hwprlabel=pars["hwprlabel"]
-        
-        self.p=pars["p"]
-        self.hl=pars["hl"]
-        self.wl=pars["wl"]
-        self.cl=pars["cl"]
         self.vocabulary = getVoc(small=True, specials=False, big=False, digits=False)
         self.Ivoc = {u:v for (v,u) in self.vocabulary.items()}
         self.vocL = len(list(self.vocabulary.items()))
-        if self.hwprlabel =='token':
+        if self.pars['hwprlabel'] =='token':
             self.vocL +=1
 
         self.download_dataset()
@@ -71,16 +64,6 @@ class DB():
         
     def download_dataset(self):
     
-        #create workspace folder
-        #maybeCreateWorkspace(path=workspace_dir)
-    
-        #download the zip file from googledrive
-        #if not os.path.isfile(self.google_file):
-         #   gdd.download_file_from_google_drive(file_id=self.google_file_id, dest_path=self.google_file, unzip=True)
-    
-        #unzip  the file on temp and then move the contents to workspace
-    
-        #unzip('./data/Approved_1_2_3_labled_v3.zip')
         zip_ref = zipfile.ZipFile(get_first_file(self.pars['training_set_dir']))
         zip_ref.extractall(self.pars['training_set_dir'])
         zip_ref.close()
@@ -97,14 +80,14 @@ class DB():
             for row in csv.reader(f, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
                 if row[0] in imgs:
                     db[row[0]] = row[1:] + [APPROVED_DIR  + '/EnglishUnstructured/' + row[0]]
-                    #print(db[row[0]])
+                    
         
         keys = list(db.keys())
         shuffle(keys)
     
         
-        train_keys = keys[0:int(len(keys) * self.p)]
-        valid_keys = keys[int(len(keys) * self.p):]
+        train_keys = keys[0:int(len(keys) * self.pars['p'])]
+        valid_keys = keys[int(len(keys) * self.pars['p']):]
         
         
         train_db = {key: db[key] for key in train_keys}
@@ -126,14 +109,12 @@ class DB():
     
     def label_processor(self,label):
         """
-        This fucntion replace any special chars with spac. 
-        - split label by ? to creates label for each line.
-        - breaks if line label length is greater than maxL
+        
         """
         
         #print("before: ",label)
         vocabulary=self.vocabulary 
-        maxL=self.maxL
+        maxL=self.pars['maxL']
         
         #- split label by ? to creates label for each line.
         label.rjust(len(label)+2)
@@ -166,7 +147,7 @@ class DB():
         nlabel = [[char for char in label if char in vocabulary] for label in nlabel]
         
         nlabel = [[vocabulary[char] for char in label if char in vocabulary] for label in nlabel]
-        nlabel=toDense(nlabel,self.vocL,self.maxL)
+        nlabel=toDense(nlabel,self.vocL,self.pars['maxL'])
         
         
         lenf = [len(label) for label in nlabel]
@@ -181,11 +162,6 @@ class DB():
     
     def main_generator(self,tr=True, batch_size=2,double=True):
         """
-        creates a generator on the provided dataset.
-        return a list of the elements:
-        [['amount_line1? amount_line1','','260-323-386','../O668367004005_4200.0_0_2.jpeg'],np.array(),[318, 365, 411]]
-        
-        images are loaded >>  bottom and right padding is applied to make the size of images fixed.
         
         """
         if tr:
@@ -193,8 +169,8 @@ class DB():
         else:
             db = self.valid_db
             
-        h =self.hl
-        w = self.wl
+        h =pars['hl']
+        w = self.pars['wl']
         
         keys = list(db.keys())
         bucket_keys = []
@@ -298,16 +274,16 @@ class DB():
             org_shape = image.shape
     
             
-            add_to_bottom = int(self.hl - org_shape[0])
-            add_to_right = int(self.wl - org_shape[1])
+            add_to_bottom = int(pars['hl'] - org_shape[0])
+            add_to_right = int(self.pars['wl'] - org_shape[1])
     
-            if org_shape[0] > self.hl or org_shape[1] > self.wl :
-                raise Exception("height or width is bigger than "+ str(self.hl) + " x " +str(self.wl) +" "+ org_shape)
+            if org_shape[0] > self.pars['hl'] or org_shape[1] > self.pars['wl'] :
+                raise Exception("height or width is bigger than "+ str(self.pars['hl']) + " x " +str(self.pars['wl']) +" "+ org_shape)
                 
             
             
             padded_image = cv2.copyMakeBorder( image, 0, add_to_bottom, 0, add_to_right, cv2.BORDER_CONSTANT,0)
-            padded_image = np.array(padded_image.reshape(1,self.hl,self.wl,1))
+            padded_image = np.array(padded_image.reshape(1,self.pars['hl'],self.pars['wl'],1))
             
             ls = np.array(sorted([int(line)  for line in db[keys[idx]][2].split('-')])).reshape(-1,3)
             height = np.array(org_shape[0]).reshape(-1,1)
@@ -336,7 +312,7 @@ class DB():
             y_pred = y_pred[0]
             shape = y_pred[:, 2:, :].shape 
             ctc_decode = bknd.ctc_decode(y_pred[:, 2:, :], input_length=np.ones(shape[0])*shape[1])[0][0]
-            out = bknd.get_value(ctc_decode)[:, :self.maxL]
+            out = bknd.get_value(ctc_decode)[:, :self.pars['maxL']
            
             ler = compare1(out, label, self.Ivoc, show=2)
             ler_dic[bnk].append(float(ler))
@@ -379,7 +355,7 @@ class DB():
         valid_gen = self.main_generator(tr=False, batch_size=2)
         model_eval.save_weights('data/logs/model.h5')
                
-        label_len = self.maxL
+        label_len = self.pars['maxL']
         nr = 3
         loss = 0.0
         dis = 0.0
@@ -402,12 +378,7 @@ class DB():
             x= [images, heights, widths, lines,y_test,seq_lens]
             y=y_test
             lL = seq_lens
-            print("images",images.shape)
-            print("heights",heights.shape)
-            print("widths",widths.shape)
-            print("lines",lines.shape)
-            print("y_test",y_test.shape)
-            print("seq_lens",seq_lens.shape)
+            
             loss += model.evaluate(x)
             y_ = out
             print(y_.shape, y.shape)

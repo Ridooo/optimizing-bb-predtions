@@ -28,8 +28,6 @@ def get_db_args():
         help='original image number of channels', default=1, type=int)
     parser.add_argument('--hwprlabel', dest='hwprlabel',
         help='hwprlabel', default='lower', type=str)
-    parser.add_argument('--training_set_dir', dest='training_set_dir',
-        help='training_set_dir', default='/valohai/inputs/training-set', type=str)
     return parser.parse_args()
 
 
@@ -44,10 +42,12 @@ def get_model_args():
         help='width hwr image', default=500, type=int)
     parser.add_argument('--c', dest='c',
         help='number of channels of hwr image', default=1, type=int)
-    parser.add_argument('--lr', dest='lr',
-        help='learning rate', default='0.001', type=float)
+    parser.add_argument('--learning_rate', dest='learning_rate',
+        help='Initial learning rate', default='0.001', type=float)
     parser.add_argument('--lr_decay', dest='lr_decay',
         help='learning decay', default='0.9', type=float)
+    parser.add_argument('--dropout', dest='dropout',
+        help='Keep probability for training dropout', default='0.15', type=float)
     parser.add_argument('--op', dest='op',
         help='training optimization', default='adam', type=str)
     parser.add_argument('--debug', dest='debug',
@@ -56,10 +56,10 @@ def get_model_args():
                 help='path to save the models', default='/valohai/outputs/output-models/', type=str)
     parser.add_argument('--load', dest='load',
                 help='model to be loaded', default='optimize_ltm_2019-04-16_05%3A49%3A00_0049-0.1954.hdf5', type=str)
-    parser.add_argument('--stepepoch', dest='stepepoch',
-                help='steps per epoch', default=1000, type=int)
+    parser.add_argument('--max_steps', dest='max_steps',
+                help='Number of steps to run trainer', default=50, type=int)
     parser.add_argument('--epochs', dest='epochs',
-                help='number of epochs', default=50, type=int)
+                help='number of epochs', default=1, type=int)
     parser.add_argument('--verbose', dest='verbose',
                 help='verbose', default=1, type=int)
     parser.add_argument('--tb_log_dir', dest='tb_log_dir',
@@ -116,7 +116,7 @@ if __name__=='__main__':
 
     tvars = tf.trainable_variables()
     p_vars = [var for var in tvars if 'p_' in var.name and 'testing' not in var.name]
-    p_total_trainer = tf.train.AdamOptimizer(0.0001).minimize(p_mse_loss,var_list=p_vars)
+    p_total_trainer = tf.train.AdamOptimizer(model_pars['learning_rate']).minimize(p_mse_loss,var_list=p_vars)
 
 
     tf.summary.scalar('predictor_mse_loss_train',p_mse_loss)
@@ -152,7 +152,7 @@ if __name__=='__main__':
         tcng_tr.model.load_weights(os.path.join(INPUT_MODELS_DIR, model_pars["load"]))
         newler = 999999999999.99
         # Train ltm_predictor and discriminator together
-        for i in range(40):
+        for i in range(model_pars['max_steps']):
             #images, lines , ids = next(train_gen)
             #images = np.array(images)
             #ltm_images, l_true = ltm_img_processor(images,lines)
