@@ -13,7 +13,7 @@ import logging
 import json
 import argparse
 
-def get_db_args():
+def get_args():
 
     parser = argparse.ArgumentParser(description='params')
     parser.add_argument('--maxL', dest='maxL',
@@ -28,12 +28,6 @@ def get_db_args():
         help='original image number of channels', default=1, type=int)
     parser.add_argument('--hwprlabel', dest='hwprlabel',
         help='hwprlabel', default='lower', type=str)
-    return parser.parse_args()
-
-
-def get_model_args():
-
-    parser = argparse.ArgumentParser(description='params')
     parser.add_argument('--batch_size', dest='batch_size',
         help='batch size', default=10, type=int)
     parser.add_argument('--h', dest='h',
@@ -53,28 +47,26 @@ def get_model_args():
     parser.add_argument('--debug', dest='debug',
         help='enable debug', default=0, type=int)
     parser.add_argument('--pathSaveModel', dest='pathSaveModel',
-                help='path to save the models', default='/valohai/outputs/output-models/', type=str)
+        help='path to save the models', default='/valohai/outputs/output-models/', type=str)
     parser.add_argument('--load', dest='load',
-                help='model to be loaded', default='optimize_ltm_2019-04-16_05%3A49%3A00_0049-0.1954.hdf5', type=str)
+        help='model to be loaded', default='optimize_ltm_2019-04-16_05%3A49%3A00_0049-0.1954.hdf5', type=str)
     parser.add_argument('--max_steps', dest='max_steps',
-                help='Number of steps to run trainer', default=50, type=int)
+        help='Number of steps to run trainer', default=50, type=int)
     parser.add_argument('--epochs', dest='epochs',
-                help='number of epochs', default=1, type=int)
+        help='number of epochs', default=1, type=int)
     parser.add_argument('--verbose', dest='verbose',
-                help='verbose', default=1, type=int)
+        help='verbose', default=1, type=int)
     parser.add_argument('--tb_log_dir', dest='tb_log_dir',
-                help='tensor board log dir', default='/valohai/outputs/tensorboard', type=str)
-    
+        help='tensor board log dir', default='/valohai/outputs/tensorboard', type=str)
     return parser.parse_args()
+
 
 
     
 if __name__=='__main__':
     args = get_db_args()
-    db_pars =vars(args)
-    args = get_model_args()
-    model_pars =vars(args)
-
+    pars =vars(args)
+    
     INPUTS_DIR = os.getenv('VH_INPUTS_DIR', './inputs')
     OUTPUTS_DIR = os.getenv('VH_OUTPUTS_DIR', './outputs')
     TRAINING_DATASET_DIR = os.path.join(INPUTS_DIR,'training-set')
@@ -83,20 +75,19 @@ if __name__=='__main__':
     TENSORBOARD_DIR = os.path.join(OUTPUTS_DIR,'tensorboard')
     LOGS_DIR = os.path.join(OUTPUTS_DIR,'logs')
     
-    db_pars['training_set_dir'] = TRAINING_DATASET_DIR
-    model_pars['pathSaveModel'] = OUT_MODELS_DIR
-    model_pars['tb_log_dir'] = OUT_MODELS_DIR
+    pars['training_set_dir'] = TRAINING_DATASET_DIR
+    pars['pathSaveModel'] = OUT_MODELS_DIR
+    pars['tb_log_dir'] = OUT_MODELS_DIR
 
     os.mkdir(LOGS_DIR)
     os.mkdir(OUT_MODELS_DIR)
    
-    print("db_pars: ", db_pars)
-    print("model_pars: ", model_pars)
-    db = DB(db_pars)
+    print("pars: ", pars)
+    db = DB(pars)
 
 
     tf.reset_default_graph()
-    tcng_tr = TCNNG(mydb=db, pars=model_pars,name='optimize_ltm')
+    tcng_tr = TCNNG(mydb=db, pars=pars,name='optimize_ltm')
 
     
     ltm_images_ph_tr = tf.placeholder(tf.float32,[None, 124,124,1])
@@ -116,7 +107,7 @@ if __name__=='__main__':
 
     tvars = tf.trainable_variables()
     p_vars = [var for var in tvars if 'p_' in var.name and 'testing' not in var.name]
-    p_total_trainer = tf.train.AdamOptimizer(model_pars['learning_rate']).minimize(p_mse_loss,var_list=p_vars)
+    p_total_trainer = tf.train.AdamOptimizer(pars['learning_rate']).minimize(p_mse_loss,var_list=p_vars)
 
 
     tf.summary.scalar('predictor_mse_loss_train',p_mse_loss)
@@ -137,8 +128,8 @@ if __name__=='__main__':
 
     logdir = TENSORBOARD_DIR + '/' + datetime.datetime.now().strftime('%Y%m%d-%H%M%S') + '/'
     ############################
-    train_gen = db.main_generator(tr=True, batch_size=model_pars['batch_size'])
-    valid_gen = db.main_generator(tr=False, batch_size=model_pars['batch_size'])
+    train_gen = db.main_generator(tr=True, batch_size=pars['batch_size'])
+    valid_gen = db.main_generator(tr=False, batch_size=pars['batch_size'])
     
 
     logging.basicConfig(filename=LOGS_DIR + '/evaluate.out',level=logging.DEBUG ,format='%(asctime)s %(levelname)s %(message)s')
@@ -149,10 +140,10 @@ if __name__=='__main__':
         sess.run(tf.local_variables_initializer())
         writer =tf.summary.FileWriter(logdir,sess.graph)
 
-        tcng_tr.model.load_weights(os.path.join(INPUT_MODELS_DIR, model_pars["load"]))
+        tcng_tr.model.load_weights(os.path.join(INPUT_MODELS_DIR, pars["load"]))
         newler = 999999999999.99
         # Train ltm_predictor and discriminator together
-        for i in range(model_pars['max_steps']):
+        for i in range(pars['max_steps']):
             #images, lines , ids = next(train_gen)
             #images = np.array(images)
             #ltm_images, l_true = ltm_img_processor(images,lines)
