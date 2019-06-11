@@ -312,7 +312,7 @@ class DB():
             y_pred = y_pred[0]
             shape = y_pred[:, 2:, :].shape 
             ctc_decode = bknd.ctc_decode(y_pred[:, 2:, :], input_length=np.ones(shape[0])*shape[1])[0][0]
-            out = bknd.get_value(ctc_decode)[:, :self.pars['maxL']
+            out = bknd.get_value(ctc_decode)[:, :self.pars['maxL']]
            
             ler = compare1(out, label, self.Ivoc, show=2)
             ler_dic[bnk].append(float(ler))
