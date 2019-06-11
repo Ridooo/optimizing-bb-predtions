@@ -128,7 +128,7 @@ class TCNNG(object):
             
             #predicted_images = Input(tensor=predicted_images)
            
-            self.labels = tf.placeholder(dtype=tf.int32,shape=[None, self.mydb.pars['maxL'])
+            self.labels = tf.placeholder(dtype=tf.int32,shape=[None, self.mydb.pars['maxL']])
             self.label_length = tf.placeholder(dtype=tf.int32,shape=[None, 1])
             
             labels = Input(tensor=self.labels,name='the_labels')
