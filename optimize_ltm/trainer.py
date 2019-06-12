@@ -9,20 +9,17 @@ import logging
 import json
 import gc
 from tensorflow import set_random_seed
-from utils.toolkit import *
-from models.mdlstm import *
-from models.tcn import *
-from models.crnn import *
-from models.stncrnn import STNCRNN
-from datasets.fontgenerator import *
-from datasets.doubledata import *
-from datasets.semidoubledata import *
+from optimize_ltm.utils.toolkit import *
+from optimize_ltm.models.mdlstm import *
+from optimize_ltm.models.tcn import *
+from optimize_ltm.models.crnn import *
+from optimize_ltm.models.stncrnn import STNCRNN
+from optimize_ltm.datasets.fontgenerator import *
+from optimize_ltm.datasets.doubledata import *
+from optimize_ltm.datasets.semidoubledata import *
 #from datasets.semireal import *
-from datasets.stndataset import *
-from clean.remotedb import *
-from clean.tcng import TCNNG
-from models.sbillburg_CNN_BLSTM import *
-from datasets.realdatagenerator import *
+from optimize_ltm.datasets.stndataset import *
+from optimize_ltm.datasets.realdatagenerator import *
 from contextlib import contextmanager
 try:
     from datasets.namesdata import NamesData

@@ -25,9 +25,9 @@ import datetime
 from random import shuffle
 from sklearn.metrics import accuracy_score, confusion_matrix
 from datetime import datetime
-from tcnn import TCN
-from EvaluateTCN import Evaluate
-from modelsUtils import translate_image
+from optimize_ltm.tcnn import TCN
+from optimize_ltm.EvaluateTCN import Evaluate
+from optimize_ltm.modelsUtils import translate_image
 
 
     
@@ -36,20 +36,9 @@ class TCNNG(object):
     def __init__(self, mydb,pars,name='optimize_ltm'):
         self.name=name
         self.mydb=mydb
-        self.batch_size=pars["batch_size"]
-        self.h=pars["h"]
-        self.w=pars["w"]
-        self.c=pars["c"]
-        self.lr=pars["lr"]
-        self.op=pars["op"]
-        self.lr_decay=pars["lr_decay"]
-        self.debug=pars["debug"]
-        self.pathSaveModel=pars["pathSaveModel"]
-        self.load=pars["load"]
-        self.stepepoch=pars["stepepoch"]
-        self.epochs=pars["epochs"]
-        self.verbose=pars["verbose"]
-        self.tb_log_dir=pars["tb_log_dir"]
+        self.pars = pars
+
+        
 
     def train(self):         
         
@@ -57,12 +46,12 @@ class TCNNG(object):
         
         
         
-        if self.op  == 'sgd':
-            op=RMSprop(lr=self.lr, rho=0.9, epsilon=None, decay=self.lr_decay)#
-        elif self.op == 'adam':
-            op=Adam(lr=self.lr)#        
+        if self.pars['op']  == 'sgd':
+            op=RMSprop(lr=self.pars['learning_rate'], rho=0.9, epsilon=None, decay=self.pars['lr_decay'])#
+        elif self.pars['op'] == 'adam':
+            op=Adam(lr=self.pars['learning_rate'])#        
         
-        filepath = 'data/logs/models/tcn'+self.name+'.hdf5' if self.debug == 1 else self.pathSaveModel+self.name+datetime.now().strftime("_%Y-%m-%d_%H:%M:%S_")+'{epoch:04d}-{loss:.4f}.hdf5'
+        filepath = 'data/logs/models/tcn'+self.name+'.hdf5' if self.pars['debug'] == 1 else self.pars['pathSaveModel']+self.name+datetime.now().strftime("_%Y-%m-%d_%H:%M:%S_")+'{epoch:04d}-{loss:.4f}.hdf5'
         check_point = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
         
         print('to save to:',filepath)
@@ -70,24 +59,24 @@ class TCNNG(object):
         self.model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=op)
         print(self.model.summary())
         
-        train_gen = self.mydb.main_generator(tr=True, batch_size=self.batch_size/2)
-        valid_gen = self.mydb.main_generator(tr=False, batch_size=self.batch_size/2)
+        train_gen = self.mydb.main_generator(tr=True, batch_size=self.pars['batch_size']/2)
+        valid_gen = self.mydb.main_generator(tr=False, batch_size=self.pars['batch_size']/2)
         
         evaluator =  Evaluate()
         evaluator.sets(self.eval_model, valid_gen, self.mydb.maxL, self.mydb)
         
-        if self.load is not None:
-            self.model.load_weights("data/logs/models/"+self.load)
+        if self.pars['load'] is not None:
+            self.model.load_weights("data/logs/models/"+self.pars['load'])
             print('weight loaded')
             
         if True:
             self.model.fit_generator(train_gen, 
-                            steps_per_epoch=self.stepepoch,
-                            epochs=self.epochs,
-                            verbose=self.verbose,
+                            steps_per_epoch=self.pars['max_steps'],
+                            epochs=self.pars['epochs'],
+                            verbose=self.pars['verbose'],
                             callbacks=[evaluator,
                                        check_point,
-                                       TensorBoard(log_dir=self.tb_log_dir)],
+                                       TensorBoard(log_dir=self.pars['tb_log_dir'])],
                             validation_data=valid_gen, 
                             validation_steps=2)
 
@@ -111,7 +100,7 @@ class TCNNG(object):
             labels = Input(name='the_labels', shape=[self.mydb.maxL],dtype='int32')
             label_length = Input(name='label_length', shape=[1],dtype='int32')
             
-            predicted_images = Lambda(images_generator_func, output_shape=(self.h,self.w,self.c,),arguments={"batch_size":int(self.batch_size)}, name='images_generator_func')([images_ph, heights_ph, widths_ph, l_true_ph])
+            predicted_images = Lambda(images_generator_func, output_shape=(self.pars['h'],self.pars['w'],self.pars['c'],),arguments={"batch_size":int(self.pars['batch_size'])}, name='images_generator_func')([images_ph, heights_ph, widths_ph, l_true_ph])
             
             
             
@@ -133,20 +122,20 @@ class TCNNG(object):
             heights_ph =Input(tensor=self.heights_ph)
             widths_ph =Input(tensor=self.widths_ph)
             
-            predicted_images = Lambda(images_generator_func, output_shape=(self.h,self.w,self.c,),arguments={"batch_size":int(self.batch_size),"normalize_lines":False}, name='images_generator_func')([images_ph, heights_ph, widths_ph, l_true_ph])
+            predicted_images = Lambda(images_generator_func, output_shape=(self.pars['h'],self.pars['w'],self.pars['c'],),arguments={"batch_size":int(self.pars['batch_size']),"normalize_lines":True}, name='images_generator_func')([images_ph, heights_ph, widths_ph, l_true_ph])
             self.predicted_images = predicted_images
             #predicted_images, _  =predicted_images_generator(images_ph,heights_ph, widths_ph,l_pred, int(self.batch_size/2),nlines=False)
             
             #predicted_images = Input(tensor=predicted_images)
            
-            self.labels = tf.placeholder(dtype=tf.int32,shape=[None, self.mydb.maxL])
+            self.labels = tf.placeholder(dtype=tf.int32,shape=[None, self.mydb.pars['maxL']])
             self.label_length = tf.placeholder(dtype=tf.int32,shape=[None, 1])
             
             labels = Input(tensor=self.labels,name='the_labels')
             label_length = Input(tensor=self.label_length,name='label_length')
     
         _ ,h,w,c = predicted_images.shape
-        assert (h,w,c) == ( self.h,self.w,self.c)
+        assert (h,w,c) == ( self.pars['h'],self.pars['w'],self.pars['c'])
         
         
         #predicted_images = tf.Print(predicted_images,[predicted_images[2]])
@@ -154,7 +143,7 @@ class TCNNG(object):
         predicted_images = Lambda(lambda x: bknd.permute_dimensions(x, (0,2,1,3)))(predicted_images)
         
         _ ,w,h, c = predicted_images.shape
-        assert (w,h,c) == (self.w,self.h, self.c)
+        assert (w,h,c) == (self.pars['w'],self.pars['h'], self.pars['c'])
         
         conv_1 = Conv2D(32, (3, 3), activation='relu', padding='same')(predicted_images)
         batchnorm_1 = BatchNormalization()(conv_1)
@@ -241,7 +230,10 @@ def predicted_images_generator(images_ph,heights_ph, widths_ph,l_pred, batch_siz
         image = tf.slice(images_ph, [i,0,0,0], [1,heights_ph[i][0], widths_ph[i][0], c])
         
         if normalize_lines:
-            l = tf.div(l_pred[i],tf.cast(heights_ph[i][0], dtype=tf.float32))
+            l = l_pred[i]
+            #l = tf.Print(l,[l], message='l before')
+            l = tf.div(l,tf.cast(heights_ph[i][0], dtype=tf.float32))
+            #l = tf.Print(l,[l], message='l after')
         else:
             l = l_pred[i]
             

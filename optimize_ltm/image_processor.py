@@ -57,7 +57,7 @@ def ltm_img_processor(images, heights, widths,lines,double=False,resized_h=124,r
         if len(img.shape)==2:
             img = np.reshape(img, (img.shape[0], -1,1))
         x.append(img / 255.0)
-        nlines.append([j/H for j in list(lines[i])])
+        nlines.append([j for j in list(lines[i])])
     
     x = np.array(x)
     #x = x.reshape(x.shape[0],x.shape[1],x.shape[2],1)
